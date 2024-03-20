@@ -1,2 +1,100 @@
-print("pong goes here")
-print("test commit")
+import pygame as pg
+import sys
+
+# State of project 3/20
+# window opens, paddle appears,
+# can be moved with repeated w/s
+# or up/down arrow key press
+
+pg.init()
+
+WIDTH, HEIGHT = 800, 700
+screen = pg.display.set_mode((WIDTH, HEIGHT))
+
+pg.display.set_caption("pong")
+
+FPS = 30
+clock = pg.time.Clock()
+
+
+
+"""
+While I've used a decent amount of python, I'm pretty new
+to using classes/object oriented aspects. Please feel free
+to suggest fixes/best practices. 
+
+Might move paddle to its own file, but for now easier to
+just use one file.
+
+attributes of paddle:
+-color
+-position: x & y
+-speed
+-dimensions: width, height
+-possibly is_player
+"""
+
+
+class paddle:
+    def __init__(self, x, y, c=((255, 255, 255)), s=20, h=110, w=20):
+        self.color = c
+        self.x_pos = x
+        self.y_pos = y
+        self.speed = s
+        self.height = h
+        self.width = w
+
+        self.rect = pg.Rect(x, y, w, h)
+        self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
+    
+    def set_speed(self, s):
+        self.speed = s
+
+    def display(self):
+        self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
+
+    # Potentially replace with enum for directions
+    def update(self, y_mod):
+        self.y_pos += self.speed*y_mod
+
+        # prevent from leaving bounds
+        if (self.y_pos < 0):
+            self.y_pos = 0
+        elif (self.y_pos + self.height >= HEIGHT):
+            self.y_pos = HEIGHT-self.height
+
+
+        self.rect = (self.x_pos, self.y_pos, self.width, self.height)
+
+    def __str__(self):
+        return ("paddle " + str(self.x_pos) + ", " + str(self.y_pos))
+
+player_paddle = paddle(10, 100)
+
+def game_loop():
+    running = True
+    while(running):
+        screen.fill((0, 0, 0))
+        player_paddle.display()
+        pg.display.update()
+
+        #handle keypress
+        y_mod = 0
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+            if event.type == pg.KEYDOWN:
+                if (event.key == pg.K_w or event.key == pg.K_UP):
+                    y_mod = -1
+                if (event.key == pg.K_s or event.key == pg.K_DOWN):
+                    y_mod = 1
+            if event.type == pg.KEYUP:
+                y_mod = 0
+
+            #update graphics 
+            player_paddle.update(y_mod)
+            player_paddle.display()            
+            pg.display.update()
+            clock.tick(FPS)
+            
+game_loop()
