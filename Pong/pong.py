@@ -8,6 +8,7 @@ import sys
 pg.init()
 
 WIDTH, HEIGHT = 800, 700
+CENTER_X, CENTER_Y = (WIDTH / 2), (HEIGHT / 2)
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 
 pg.display.set_caption("pong")
@@ -52,7 +53,6 @@ class paddle:
     def display(self):
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
 
-    # Potentially replace with enum for directions
     def update(self, y_mod):
         self.y_pos += self.speed*y_mod
 
@@ -68,8 +68,31 @@ class paddle:
     def __str__(self):
         return ("paddle " + str(self.x_pos) + ", " + str(self.y_pos))
 
+"""
+Attributes of ball:
+-size (is both length and width)
+-speed
+-x, y coords
+-color
+"""
+
+class ball:
+    def __init__(self, sz, sp, x, y, c):
+        self.size = sz
+        self.speed = sp
+        self.x_pos = x
+        self.y_pos = y
+        self.color = c
+
+        self.rect = pg.Rect(x, y, sz, sz)
+        self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
+
+    def display(self):
+        self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
+
 player_paddle = paddle(10, 300)
 computer_paddle = paddle(770, 300)
+game_ball = ball(20, 20, (CENTER_X - 20), (CENTER_Y - 20), ((255, 255, 255)))
 
 def game_loop():
     running = True
@@ -92,7 +115,8 @@ def game_loop():
         #update graphics 
         player_paddle.update(y_mod)
         player_paddle.display()
-        computer_paddle.display()            
+        computer_paddle.display()   
+        game_ball.display()         
         pg.display.update()
         clock.tick(FPS)
             
