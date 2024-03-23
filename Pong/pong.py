@@ -1,10 +1,9 @@
 import pygame as pg
 import sys
 
-# State of project 3/20
-# window opens, paddle appears,
-# can be moved with repeated w/s
-# or up/down arrow key press
+# State of project 3/22
+# window opens, paddles appear,
+# left paddle can be moved with w/s or up/down
 
 pg.init()
 
@@ -69,32 +68,32 @@ class paddle:
     def __str__(self):
         return ("paddle " + str(self.x_pos) + ", " + str(self.y_pos))
 
-player_paddle = paddle(10, 100)
+player_paddle = paddle(10, 300)
+computer_paddle = paddle(770, 300)
 
 def game_loop():
     running = True
     while(running):
         screen.fill((0, 0, 0))
-        player_paddle.display()
-        pg.display.update()
 
         #handle keypress
         y_mod = 0
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
-            if event.type == pg.KEYDOWN:
-                if (event.key == pg.K_w or event.key == pg.K_UP):
-                    y_mod = -1
-                if (event.key == pg.K_s or event.key == pg.K_DOWN):
-                    y_mod = 1
-            if event.type == pg.KEYUP:
-                y_mod = 0
 
-            #update graphics 
-            player_paddle.update(y_mod)
-            player_paddle.display()            
-            pg.display.update()
-            clock.tick(FPS)
+        keys = pg.key.get_pressed()
+        if keys[pg.K_UP] or keys[pg.K_w]:
+            y_mod = -1
+        elif keys[pg.K_DOWN] or keys[pg.K_s]:
+            y_mod = 1
+
+
+        #update graphics 
+        player_paddle.update(y_mod)
+        player_paddle.display()
+        computer_paddle.display()            
+        pg.display.update()
+        clock.tick(FPS)
             
 game_loop()
