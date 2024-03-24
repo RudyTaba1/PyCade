@@ -97,6 +97,10 @@ class ball:
         self.y_pos = y
         self.color = c
 
+        #allow for change of direction
+        self.x_vector = 1
+        self.y_vector = 1
+
         # rectangle/draw objects
         self.rect = pg.Rect(x, y, sz, sz)
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
@@ -104,16 +108,37 @@ class ball:
     def display(self):
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
 
+    def update(self):
+        self.x_pos += self.speed * self.x_vector
+        self.y_pos += self.speed * self.y_vector
+
+        #border hit conditions
+        if(self.x_pos < 0 or self.x_pos > WIDTH - self.size):
+            self.x_vector = -self.x_vector
+        if (self.y_pos < 0 or self.y_pos > HEIGHT - self.size):
+            self.y_vector = -self.y_vector
+
+        self.rect = pg.Rect(self.x_pos, self.y_pos, self.size, self.size)
+
 # create game components
 player_paddle = paddle(10, CENTER_Y - 65)
 computer_paddle = paddle(WIDTH - 30, CENTER_Y - 65)
 
-game_ball = ball(20, 20, CENTER_X - 20, CENTER_Y - 20)
+game_ball = ball(20, 8, CENTER_X - 20, CENTER_Y - 20)
 
 # contains game logic
 def game_loop():
 
     running = True
+
+    #outside of main loop to provide a few milliseconds
+    #for user to process screen before game beings 
+    screen.fill((0, 0, 0))
+    player_paddle.display()
+    computer_paddle.display()   
+    game_ball.display()         
+    pg.display.update()
+    pg.time.wait(300)
 
     while(running):
         screen.fill((0, 0, 0))
@@ -134,6 +159,7 @@ def game_loop():
 
         #update graphics 
         player_paddle.update(y_mod)
+        game_ball.update()
         player_paddle.display()
         computer_paddle.display()   
         game_ball.display()         
