@@ -23,7 +23,9 @@ pg.display.set_caption("pong")
 FPS = 30
 clock = pg.time.Clock()
 
-
+bounce_count = 0
+player_score = 0
+computer_score = 0
 
 """
 While I've used a decent amount of python, I'm pretty new
@@ -43,36 +45,60 @@ attributes of paddle:
 
 
 class paddle:
-    def __init__(self, x, y, c=WHITE, s=20, h=110, w=20):
-        self.color = c
-        self.x_pos = x
-        self.y_pos = y
-        self.speed = s
-        self.height = h
-        self.width = w
+    def __init__(self, x_pos, y_pos, color=WHITE, speed=12, height=110, width=20, is_player=False):
+        self.color = color
+        self.x_pos = x_pos
+        self.y_pos = y_pos
+        self.speed = speed
+        self.height = height
+        self.width = width
+        self.is_player = is_player
 
         # rectangle/drawing objects
-        self.rect = pg.Rect(x, y, w, h)
+        self.rect = pg.Rect(x_pos, y_pos, width, height)
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
     
     def set_speed(self, s):
         self.speed = s
     
-    def get_width(self):
-        return self.width
+    def get_x(self):
+        return self.x_pos
+    
+    def get_y(self):
+        return self.y_pos
+    
+    def move_toward(self, target_y):
+        y = self.y_pos + 65 #vertical center of paddle
+        y_mod = 0
+        if (y < target_y):
+            y_mod = 1
+            print("moving down")
+
+        #if the ball is close enough to the center of the paddle, don't move
+        #helps prevent excessive stuttering
+        #to be updated later to move exact distance to match ball    
+        elif(y <= target_y + 10 and y >= target_y - 10): 
+            y_mod = 0
+            print("staying still")
+        else: 
+            y_mod = -1
+            print("moving up")
+
+        self.update(y_mod)
+
     
     def display(self):
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
 
     def update(self, y_mod):
-        # update speed
-        self.y_pos += self.speed*y_mod
 
+        self.y_pos += self.speed*y_mod
+            
         # prevent from leaving bounds
-        if (self.y_pos < 0):
+        if(self.y_pos < 0):
             self.y_pos = 0
         elif (self.y_pos + self.height >= HEIGHT):
-            self.y_pos = HEIGHT-self.height
+            self.y_pos = HEIGHT - self.height
 
         # update self rectangle
         self.rect = (self.x_pos, self.y_pos, self.width, self.height)
@@ -105,6 +131,9 @@ class ball:
         self.rect = pg.Rect(x, y, sz, sz)
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
 
+    def get_y(self):
+        return self.y_pos
+
     def display(self):
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
 
@@ -112,16 +141,18 @@ class ball:
         self.x_pos += self.speed * self.x_vector
         self.y_pos += self.speed * self.y_vector
 
-        #border hit conditions
+        #border hit conditions & reverse direction to bounce
         if(self.x_pos < 0 or self.x_pos > WIDTH - self.size):
             self.x_vector = -self.x_vector
         if (self.y_pos < 0 or self.y_pos > HEIGHT - self.size):
             self.y_vector = -self.y_vector
 
+        self.speed += bounce_count
+
         self.rect = pg.Rect(self.x_pos, self.y_pos, self.size, self.size)
 
 # create game components
-player_paddle = paddle(10, CENTER_Y - 65)
+player_paddle = paddle(10, CENTER_Y - 65, is_player=True)
 computer_paddle = paddle(WIDTH - 30, CENTER_Y - 65)
 
 game_ball = ball(20, 8, CENTER_X - 20, CENTER_Y - 20)
@@ -156,6 +187,8 @@ def game_loop():
         elif keys[pg.K_DOWN] or keys[pg.K_s]:
             y_mod = 1
 
+        #computer paddle follows ball
+        computer_paddle.move_toward(game_ball.get_y() + 10)
 
         #update graphics 
         player_paddle.update(y_mod)
