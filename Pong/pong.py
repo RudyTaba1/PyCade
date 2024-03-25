@@ -1,10 +1,10 @@
 import pygame as pg
-import sys
+import random
 
 #State of project 3/23
 #paddles and ball appear
 #player paddle can move, computer paddle follows ball
-#ball bounces off window border
+#ball bounces off window border & paddles
 
 #cleaning up later, after we get things rolling:
 #-possibly seperate paddle/ball/main for readability
@@ -13,6 +13,7 @@ import sys
 #-python best practices: is get_y or similar necessary? 
 #I don't know I just carried over the idea of getters
 #and setters from java
+#-remove uneccessary variables if applicable
 
 pg.init()
 
@@ -154,6 +155,22 @@ class ball:
     def bounce(self):
         self.x_vector = -self.x_vector
         self.y_vector = -self.y_vector
+    
+    def reset(self):
+        self.x_pos = WIDTH/2 - self.size
+        self.y_pos = HEIGHT/2 - self.size
+
+        #direction move after score is random for now
+        ran_x = random.randint(1, 2)
+        ran_y = random.randint(1, 2)
+
+        if(ran_x == 2):
+            ran_x = -1
+        if (ran_y == 2):
+            ran_y = -1
+        
+        self.x_vector = ran_x
+        self.y_vector = ran_y
 
     def display(self):
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
@@ -163,9 +180,10 @@ class ball:
         self.y_pos += self.speed * self.y_vector
 
         #border hit conditions & reverse direction to bounce
-        if(self.x_pos < 0 or self.x_pos > WIDTH - self.size):
-            self.x_vector = -self.x_vector
-        if (self.y_pos < 0 or self.y_pos > HEIGHT - self.size):
+        if(self.x_pos < 0 or self.x_pos > WIDTH):
+           pg.time.wait(300)
+           self.reset()
+        if (self.y_pos + self.size < 0 or self.y_pos > HEIGHT - self.size):
             self.y_vector = -self.y_vector
 
 
