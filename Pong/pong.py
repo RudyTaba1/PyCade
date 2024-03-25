@@ -1,10 +1,18 @@
 import pygame as pg
 import sys
 
-# State of project 3/22
-# window opens, paddles appear,
-# left paddle can be moved with w/s or up/down
-# stationary ball
+#State of project 3/23
+#paddles and ball appear
+#player paddle can move, computer paddle follows ball
+#ball bounces off window border
+
+#cleaning up later, after we get things rolling:
+#-possibly seperate paddle/ball/main for readability
+#-refine computer movements
+#-add constants where appropriate (paddle dimensions?)
+#-python best practices: is get_y or similar necessary? 
+#I don't know I just carried over the idea of getters
+#and setters from java
 
 pg.init()
 
@@ -23,7 +31,6 @@ pg.display.set_caption("pong")
 FPS = 30
 clock = pg.time.Clock()
 
-bounce_count = 0
 player_score = 0
 computer_score = 0
 
@@ -67,22 +74,26 @@ class paddle:
     def get_y(self):
         return self.y_pos
     
+    def get_rect(self):
+        return self.rect_draw
+
     def move_toward(self, target_y):
-        y = self.y_pos + 65 #vertical center of paddle
+        y = self.y_pos + 55 #vertical center of paddle
         y_mod = 0
+
+        #move up
         if (y < target_y):
             y_mod = 1
-            print("moving down")
 
         #if the ball is close enough to the center of the paddle, don't move
         #helps prevent excessive stuttering
         #to be updated later to move exact distance to match ball    
         elif(y <= target_y + 10 and y >= target_y - 10): 
             y_mod = 0
-            print("staying still")
+    
+        #move down
         else: 
             y_mod = -1
-            print("moving up")
 
         self.update(y_mod)
 
@@ -106,6 +117,9 @@ class paddle:
     def __str__(self):
         # mostly for debugging, candidate for later deletion
         return ("paddle " + str(self.x_pos) + ", " + str(self.y_pos))
+
+player_paddle = paddle(10, CENTER_Y - 55, is_player=True)
+computer_paddle = paddle(WIDTH - 30, CENTER_Y - 55)
 
 """
 Attributes of ball:
@@ -133,6 +147,13 @@ class ball:
 
     def get_y(self):
         return self.y_pos
+    
+    def get_rect(self):
+        return self.rect_draw
+    
+    def bounce(self):
+        self.x_vector = -self.x_vector
+        self.y_vector = -self.y_vector
 
     def display(self):
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
@@ -147,13 +168,8 @@ class ball:
         if (self.y_pos < 0 or self.y_pos > HEIGHT - self.size):
             self.y_vector = -self.y_vector
 
-        self.speed += bounce_count
 
         self.rect = pg.Rect(self.x_pos, self.y_pos, self.size, self.size)
-
-# create game components
-player_paddle = paddle(10, CENTER_Y - 65, is_player=True)
-computer_paddle = paddle(WIDTH - 30, CENTER_Y - 65)
 
 game_ball = ball(20, 8, CENTER_X - 20, CENTER_Y - 20)
 
@@ -189,6 +205,13 @@ def game_loop():
 
         #computer paddle follows ball
         computer_paddle.move_toward(game_ball.get_y() + 10)
+
+        #collision detection
+        if (pg.Rect.colliderect(game_ball.get_rect(), computer_paddle.get_rect())):
+            game_ball.bounce()
+
+        if (pg.Rect.colliderect(game_ball.get_rect(), player_paddle.get_rect())):
+            game_ball.bounce()
 
         #update graphics 
         player_paddle.update(y_mod)
