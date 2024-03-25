@@ -6,6 +6,10 @@ import random
 #player paddle can move, computer paddle follows ball
 #ball bounces off window border & paddles
 #ball resets on hitting left/right
+#game tracks score in terminal
+
+#necessary updates for game to be completeish:
+#speed increase as ball bounces
 
 #cleaning up later, after we get things rolling:
 #-possibly seperate paddle/ball/main for readability
@@ -27,6 +31,9 @@ CENTER_X, CENTER_Y = (WIDTH / 2), (HEIGHT / 2)
 WHITE = ((235, 235, 235))
 RED = ((186, 13, 13))
 BLUE = ((13, 42, 186))
+
+#other constants
+INIT_SPEED = 7
 
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("pong")
@@ -133,7 +140,7 @@ Attributes of ball:
 """
 
 class ball:
-    def __init__(self, sz, sp, x, y, c = RED):
+    def __init__(self, sz, x, y, c = RED, sp = INIT_SPEED):
         self.size = sz
         self.speed = sp
         self.x_pos = x
@@ -154,6 +161,9 @@ class ball:
     def get_rect(self):
         return self.rect_draw
     
+    def inc_speed(self):
+        self.speed = self.speed + 1
+    
     def bounce(self):
         self.x_vector = -self.x_vector
         self.y_vector = -self.y_vector
@@ -161,6 +171,7 @@ class ball:
     def reset(self):
         self.x_pos = WIDTH/2 - self.size
         self.y_pos = HEIGHT/2 - self.size
+        self.speed = INIT_SPEED
 
         #direction move after score is random for now
         ran_x = random.randint(1, 2)
@@ -193,14 +204,14 @@ class ball:
             player_score += 1
             pg.time.wait(300)
             self.reset()
-            print("COM: " + computer_score + "  PLY:" + player_score)
+            print("COM: " + str(computer_score) + "  PLY:" + str(player_score))
         if (self.y_pos + self.size < 0 or self.y_pos > HEIGHT - self.size):
             self.y_vector = -self.y_vector
 
 
         self.rect = pg.Rect(self.x_pos, self.y_pos, self.size, self.size)
 
-game_ball = ball(20, 8, CENTER_X - 20, CENTER_Y - 20)
+game_ball = ball(20, CENTER_X - 20, CENTER_Y - 20)
 
 # contains game logic
 def game_loop():
@@ -237,9 +248,11 @@ def game_loop():
 
         #collision detection
         if (pg.Rect.colliderect(game_ball.get_rect(), computer_paddle.get_rect())):
+            game_ball.inc_speed()
             game_ball.bounce()
 
         if (pg.Rect.colliderect(game_ball.get_rect(), player_paddle.get_rect())):
+            game_ball.inc_speed()
             game_ball.bounce()
 
         #update graphics 
