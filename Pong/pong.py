@@ -1,10 +1,11 @@
 import pygame as pg
 import random
 
-#State of project 3/23
+#State of project 3/25
 #paddles and ball appear
 #player paddle can move, computer paddle follows ball
 #ball bounces off window border & paddles
+#ball resets on hitting left/right
 
 #cleaning up later, after we get things rolling:
 #-possibly seperate paddle/ball/main for readability
@@ -14,6 +15,7 @@ import random
 #I don't know I just carried over the idea of getters
 #and setters from java
 #-remove uneccessary variables if applicable
+#-refine collision (it's really bad rn)
 
 pg.init()
 
@@ -176,13 +178,22 @@ class ball:
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
 
     def update(self):
+        global player_score, computer_score
+
         self.x_pos += self.speed * self.x_vector
         self.y_pos += self.speed * self.y_vector
 
         #border hit conditions & reverse direction to bounce
-        if(self.x_pos < 0 or self.x_pos > WIDTH):
+        if(self.x_pos < 0):
+           computer_score += 1
            pg.time.wait(300)
            self.reset()
+           print("COM: " + str(computer_score) + "  PLY:" + str(player_score))
+        if (self.x_pos > WIDTH):
+            player_score += 1
+            pg.time.wait(300)
+            self.reset()
+            print("COM: " + computer_score + "  PLY:" + player_score)
         if (self.y_pos + self.size < 0 or self.y_pos > HEIGHT - self.size):
             self.y_vector = -self.y_vector
 
