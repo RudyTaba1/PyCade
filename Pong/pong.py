@@ -1,25 +1,26 @@
 import pygame as pg
 import random
 
-#State of project 3/25
+#State of project 3/28
 #paddles and ball appear
 #player paddle can move, computer paddle follows ball
 #ball bounces off window border & paddles
 #ball resets on hitting left/right
 #game tracks score in terminal
-
-#necessary updates for game to be completeish:
-#speed increase as ball bounces
+#speed increases after paddle bounce
+#top/bottom border bounce bug probably fixed
 
 #cleaning up later, after we get things rolling:
 #-possibly seperate paddle/ball/main for readability
 #-refine computer movements
 #-add constants where appropriate (paddle dimensions?)
 #-python best practices: is get_y or similar necessary? 
-#I don't know I just carried over the idea of getters
-#and setters from java
+#   I don't know I just carried over the idea of getters
+#   and setters from java
 #-remove uneccessary variables if applicable
-#-refine collision (it's really bad rn)
+#-refine collision, especially ball getting trapped behind paddle
+#-adjust ball movement so it's not as predictable
+#-add score on game screen instead of terminal
 
 pg.init()
 
@@ -33,12 +34,12 @@ RED = ((186, 13, 13))
 BLUE = ((13, 42, 186))
 
 #other constants
-INIT_SPEED = 7
+INIT_SPEED = 4
 
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("pong")
 
-FPS = 30
+FPS = 60
 clock = pg.time.Clock()
 
 player_score = 0
@@ -128,7 +129,7 @@ class paddle:
         # mostly for debugging, candidate for later deletion
         return ("paddle " + str(self.x_pos) + ", " + str(self.y_pos))
 
-player_paddle = paddle(10, CENTER_Y - 55, is_player=True)
+player_paddle = paddle(10, CENTER_Y - 55, speed = 7, is_player=True)
 computer_paddle = paddle(WIDTH - 30, CENTER_Y - 55)
 
 """
@@ -195,17 +196,21 @@ class ball:
         self.y_pos += self.speed * self.y_vector
 
         #border hit conditions & reverse direction to bounce
-        if(self.x_pos < 0):
+
+        #if ball is on left border, computer scores
+        if(self.x_pos <= 0):
            computer_score += 1
            pg.time.wait(300)
            self.reset()
            print("COM: " + str(computer_score) + "  PLY:" + str(player_score))
-        if (self.x_pos > WIDTH):
+        #if ball is on right border, player score
+        if (self.x_pos >= WIDTH - self.size):
             player_score += 1
             pg.time.wait(300)
             self.reset()
             print("COM: " + str(computer_score) + "  PLY:" + str(player_score))
-        if (self.y_pos + self.size < 0 or self.y_pos > HEIGHT - self.size):
+        #if ball is heading offscreen vertically
+        if ((self.y_pos <= 0 and self.y_vector == -1) or (self.y_pos >= HEIGHT - self.size and self.y_vector == 1)):
             self.y_vector = -self.y_vector
 
 
@@ -213,7 +218,7 @@ class ball:
 
 game_ball = ball(20, CENTER_X - 20, CENTER_Y - 20)
 
-# contains game logic
+#contains game logic
 def game_loop():
 
     running = True
