@@ -173,8 +173,16 @@ class ball:
         #print("postspeed: " + str(self.speed_base) + "    x: " + str(self.x_speed) + "    y: " + str(self.y_speed))
     
     def bounce(self):
+
+        #in an ideal reflection off the paddle,
+        #the angle of incedence equals the angle 
+        #of reflection. Thinking of the speed the
+        #ball leaves the paddle as the hypotenuse of
+        #a right triangle where the paddle makes
+        #up one side, 
+
         self.x_speed = -self.x_speed
-        self.y_speed = -self.y_speed
+        #self.y_speed = -self.y_speed
     
     def reset(self):
         self.x_pos = WIDTH/2 - self.size
@@ -196,10 +204,10 @@ class ball:
         #the size of the hypotenuse constant. 
 
         self.x_speed = random.uniform(-self.speed_base, self.speed_base)
-        #adjust x so that the ball is not going very vertically
-        if (self.x_speed > 0 and self.x_speed < self.speed_base/2):
+        #adjust x so that the ball is going more horizontally than vertically
+        if (self.x_speed > 0 and self.x_speed < (self.speed_base/2)):
             self.x_speed += 0.5
-        elif (self.y_speed < 0 and self.y_speed > -self.speed_base/2):
+        elif (self.y_speed < 0 and self.y_speed > (-self.speed_base/2)):
             self.y_speed -= 0.5
         
     
