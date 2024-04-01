@@ -1,20 +1,15 @@
 import pygame as pg
 import random
+import math
 
-#State of project 3/28:
-    #paddles and ball appear
-    #player paddle can move, computer paddle follows ball
-    #ball bounces off window border & paddles
-    #ball resets on hitting left/right
-    #game tracks score in terminal
-    #speed increases after paddle bounce
-    #top/bottom border bounce bug probably fixed
-    #updated fps so the game looks smoother (?)
+#State of project 4/1:
+    #functional pong game
+    #score tracked in terminal
+    #random ball "throw" direction to start
 
 #most immediate to-dos:
-    #vary ball movements
     #add in game score
-    #fix ball getting trapped behind paddle
+    #less predictable ball movements
 
 #cleaning up later, after we get things rolling:
     #-possibly seperate paddle/ball/main for readability
@@ -24,9 +19,6 @@ import random
     #   I don't know I just carried over the idea of getters
     #   and setters from java
     #-remove uneccessary variables if applicable
-    #-refine collision, especially ball getting trapped behind paddle
-    #-adjust ball movement so it's not as predictable
-    #-add score on game screen instead of terminal
     #-smoother graphics, sometimes the computer paddle stutters
 
 pg.init()
@@ -150,14 +142,14 @@ Attributes of ball:
 class ball:
     def __init__(self, sz, x, y, c = RED, sp = INIT_SPEED):
         self.size = sz
-        self.speed = sp
+        self.speed_base = sp
         self.x_pos = x
         self.y_pos = y
         self.color = c
 
         #allow for change of direction
-        self.x_vector = 1
-        self.y_vector = 1
+        self.x_speed = 1
+        self.y_speed = 1
 
         # rectangle/draw objects
         self.rect = pg.Rect(x, y, sz, sz)
@@ -170,28 +162,59 @@ class ball:
         return self.rect_draw
     
     def inc_speed(self):
-        self.speed = self.speed + 1
+        #print("incspeed: " + str(self.speed_base) + "    x: " + str(self.x_speed) + "    y: " + str(self.y_speed))
+        cos_ratio = self.speed_base / self.x_speed
+        sin_ratio = self.speed_base / self.y_speed
+
+        self.speed_base += 1
+        self.x_speed = self.speed_base / cos_ratio
+        self.y_speed = self.speed_base / sin_ratio
+
+        #print("postspeed: " + str(self.speed_base) + "    x: " + str(self.x_speed) + "    y: " + str(self.y_speed))
     
     def bounce(self):
-        self.x_vector = -self.x_vector
-        self.y_vector = -self.y_vector
+        self.x_speed = -self.x_speed
+        self.y_speed = -self.y_speed
     
     def reset(self):
         self.x_pos = WIDTH/2 - self.size
         self.y_pos = HEIGHT/2 - self.size
-        self.speed = INIT_SPEED
+        self.speed_base = INIT_SPEED
 
-        #direction move after score is random for now
-        ran_x = random.randint(1, 2)
-        ran_y = random.randint(1, 2)
+        #time for trigonometry!!
+        #full explanation just in case:
+            
+        #for speed to remain constant while the
+        #direction changes randomly. Imagine
+        #the speed as the hypotenuse of a right 
+        #triangle where the ball is at one end
+        #of the hypotenuse. to keep the hypotenuse
+        #the same length while randomly changing
+        #the triangle, we can randomly generate
+        #the x value of the speed and then 
+        #derive the y value from that to keep
+        #the size of the hypotenuse constant. 
 
-        if(ran_x == 2):
-            ran_x = -1
-        if (ran_y == 2):
-            ran_y = -1
+        self.x_speed = random.uniform(-self.speed_base, self.speed_base)
+        #adjust x so that the ball is not going very vertically
+        if (self.x_speed > 0 and self.x_speed < self.speed_base/2):
+            self.x_speed += 0.5
+        elif (self.y_speed < 0 and self.y_speed > -self.speed_base/2):
+            self.y_speed -= 0.5
         
-        self.x_vector = ran_x
-        self.y_vector = ran_y
+    
+        if (self.x_speed == 0 or self.x_speed == self.speed_base or self.x_speed == -self.speed_base): #can't be a right triangle if one of the sides l = 0 or l = hypotenuse
+            self.reset()
+
+        #a = sqrt(c^2 - b^2)
+        self.y_speed = math.sqrt(math.pow(self.speed_base, 2) - math.pow(self.x_speed, 2))
+        
+        #randomize y direction
+        y_dir = random.randint(1, 2)
+        if (y_dir == 2):
+            y_dir == -1
+
+        self.y_speed *= y_dir
 
     def display(self):
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
@@ -199,8 +222,8 @@ class ball:
     def update(self):
         global player_score, computer_score
 
-        self.x_pos += self.speed * self.x_vector
-        self.y_pos += self.speed * self.y_vector
+        self.x_pos += self.x_speed
+        self.y_pos += self.y_speed
 
         #border hit conditions & reverse direction to bounce
 
@@ -217,8 +240,8 @@ class ball:
             self.reset()
             print("COM: " + str(computer_score) + "  PLY:" + str(player_score))
         #if ball is heading offscreen vertically
-        if ((self.y_pos <= 0 and self.y_vector == -1) or (self.y_pos >= HEIGHT - self.size and self.y_vector == 1)):
-            self.y_vector = -self.y_vector
+        if ((self.y_pos <= 0 and self.y_speed <= 0) or (self.y_pos >= HEIGHT - self.size and self.y_speed >= 1)):
+            self.y_speed = -self.y_speed
 
 
         self.rect = pg.Rect(self.x_pos, self.y_pos, self.size, self.size)
@@ -234,7 +257,8 @@ def game_loop():
     #for user to process screen before game beings 
     screen.fill((0, 0, 0))
     player_paddle.display()
-    computer_paddle.display()   
+    computer_paddle.display() 
+    game_ball.reset()  
     game_ball.display()         
     pg.display.update()
     pg.time.wait(300)
@@ -263,7 +287,7 @@ def game_loop():
             game_ball.inc_speed()
             game_ball.bounce()
 
-        if (pg.Rect.colliderect(game_ball.get_rect(), player_paddle.get_rect())):
+        elif (pg.Rect.colliderect(game_ball.get_rect(), player_paddle.get_rect())):
             game_ball.inc_speed()
             game_ball.bounce()
 
