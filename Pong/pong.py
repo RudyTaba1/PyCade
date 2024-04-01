@@ -1,26 +1,33 @@
 import pygame as pg
 import random
 
-#State of project 3/28
-#paddles and ball appear
-#player paddle can move, computer paddle follows ball
-#ball bounces off window border & paddles
-#ball resets on hitting left/right
-#game tracks score in terminal
-#speed increases after paddle bounce
-#top/bottom border bounce bug probably fixed
+#State of project 3/28:
+    #paddles and ball appear
+    #player paddle can move, computer paddle follows ball
+    #ball bounces off window border & paddles
+    #ball resets on hitting left/right
+    #game tracks score in terminal
+    #speed increases after paddle bounce
+    #top/bottom border bounce bug probably fixed
+    #updated fps so the game looks smoother (?)
+
+#most immediate to-dos:
+    #vary ball movements
+    #add in game score
+    #fix ball getting trapped behind paddle
 
 #cleaning up later, after we get things rolling:
-#-possibly seperate paddle/ball/main for readability
-#-refine computer movements
-#-add constants where appropriate (paddle dimensions?)
-#-python best practices: is get_y or similar necessary? 
-#   I don't know I just carried over the idea of getters
-#   and setters from java
-#-remove uneccessary variables if applicable
-#-refine collision, especially ball getting trapped behind paddle
-#-adjust ball movement so it's not as predictable
-#-add score on game screen instead of terminal
+    #-possibly seperate paddle/ball/main for readability
+    #-refine computer movements
+    #-add constants where appropriate (paddle dimensions?)
+    #-python best practices: is get_y or similar necessary? 
+    #   I don't know I just carried over the idea of getters
+    #   and setters from java
+    #-remove uneccessary variables if applicable
+    #-refine collision, especially ball getting trapped behind paddle
+    #-adjust ball movement so it's not as predictable
+    #-add score on game screen instead of terminal
+    #-smoother graphics, sometimes the computer paddle stutters
 
 pg.init()
 
@@ -129,8 +136,8 @@ class paddle:
         # mostly for debugging, candidate for later deletion
         return ("paddle " + str(self.x_pos) + ", " + str(self.y_pos))
 
-player_paddle = paddle(10, CENTER_Y - 55, speed = 7, is_player=True)
-computer_paddle = paddle(WIDTH - 30, CENTER_Y - 55)
+player_paddle = paddle(0, CENTER_Y - 55, speed = 10, is_player=True)
+computer_paddle = paddle(WIDTH - 20, CENTER_Y - 55)
 
 """
 Attributes of ball:
