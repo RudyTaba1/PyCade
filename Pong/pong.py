@@ -173,16 +173,8 @@ class ball:
         #print("postspeed: " + str(self.speed_base) + "    x: " + str(self.x_speed) + "    y: " + str(self.y_speed))
     
     def bounce(self):
-
-        #in an ideal reflection off the paddle,
-        #the angle of incedence equals the angle 
-        #of reflection. Thinking of the speed the
-        #ball leaves the paddle as the hypotenuse of
-        #a right triangle where the paddle makes
-        #up one side, 
-
         self.x_speed = -self.x_speed
-        #self.y_speed = -self.y_speed
+
     
     def reset(self):
         self.x_pos = WIDTH/2 - self.size
@@ -256,11 +248,17 @@ class ball:
 
 game_ball = ball(20, CENTER_X - 20, CENTER_Y - 20)
 
+def display_score(p_score, c_score):
+    game_font = pg.font.SysFont("arial", 45, bold=True)
+    font_surface = game_font.render((str(p_score) + " | " + str(c_score)), True, BLUE)
+    text_rect = font_surface.get_rect()
+    text_rect.center = (WIDTH/2, 30)
+    screen.blit(font_surface, text_rect)
+
 #contains game logic
 def game_loop():
 
     running = True
-
     #outside of main loop to provide a few milliseconds
     #for user to process screen before game beings 
     screen.fill((0, 0, 0))
@@ -302,6 +300,7 @@ def game_loop():
         #update graphics 
         player_paddle.update(y_mod)
         game_ball.update()
+        display_score(player_score, computer_score)
         player_paddle.display()
         computer_paddle.display()   
         game_ball.display()         
