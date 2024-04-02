@@ -1,8 +1,8 @@
-most immediate to-dos:
+## most immediate to-dos
     -look up python best practices regarding oop
     -refine computer movements
 
-cleaning up later, after we get things rolling:
+## cleaning up later, after we get things rolling:
     -possibly seperate paddle/ball/main for readability
     -refine computer movements
     -add constants where appropriate (paddle dimensions?)
