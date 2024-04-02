@@ -2,14 +2,14 @@ import pygame as pg
 import random
 import math
 
-#State of project 4/1:
+#State of project 4/2:
     #functional pong game
-    #score tracked in terminal
+    #score tracked in game
     #random ball "throw" direction to start
 
 #most immediate to-dos:
-    #add in game score
     #less predictable ball movements
+    #look up python best practices regarding oop
 
 #cleaning up later, after we get things rolling:
     #-possibly seperate paddle/ball/main for readability
@@ -20,6 +20,7 @@ import math
     #   and setters from java
     #-remove uneccessary variables if applicable
     #-smoother graphics, sometimes the computer paddle stutters
+    #easter eggs/cosmetics if I have time
 
 pg.init()
 
@@ -195,12 +196,21 @@ class ball:
         #derive the y value from that to keep
         #the size of the hypotenuse constant. 
 
-        self.x_speed = random.uniform(-self.speed_base, self.speed_base)
-        #adjust x so that the ball is going more horizontally than vertically
-        if (self.x_speed > 0 and self.x_speed < (self.speed_base/2)):
-            self.x_speed += 0.5
-        elif (self.y_speed < 0 and self.y_speed > (-self.speed_base/2)):
-            self.y_speed -= 0.5
+        #going to rework this a little bit just so there's some 
+        #randomness to the way the ball bounces
+
+        #x should be > y so ball bounces more or less
+        #toward one of the paddles
+        self.x_speed = random.uniform(self.speed_base*0.6, self.speed_base)
+
+        #set x direction
+        #seperate for now as I try to make this
+        #work like i want
+        x_dir = random.randint(1, 2)
+        if (x_dir == 2):
+            x_dir == -1
+
+        self.x_speed *= x_dir    
         
     
         if (self.x_speed == 0 or self.x_speed == self.speed_base or self.x_speed == -self.speed_base): #can't be a right triangle if one of the sides l = 0 or l = hypotenuse
@@ -209,7 +219,8 @@ class ball:
         #a = sqrt(c^2 - b^2)
         self.y_speed = math.sqrt(math.pow(self.speed_base, 2) - math.pow(self.x_speed, 2))
         
-        #randomize y direction
+        #randomize y direction, since by sqrt the generated
+        #value will only ever be positive
         y_dir = random.randint(1, 2)
         if (y_dir == 2):
             y_dir == -1
