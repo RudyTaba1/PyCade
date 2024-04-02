@@ -7,21 +7,6 @@ import math
     #score tracked in game
     #random ball "throw" direction to start
 
-#most immediate to-dos:
-    #less predictable ball movements
-    #look up python best practices regarding oop
-
-#cleaning up later, after we get things rolling:
-    #-possibly seperate paddle/ball/main for readability
-    #-refine computer movements
-    #-add constants where appropriate (paddle dimensions?)
-    #-python best practices: is get_y or similar necessary? 
-    #   I don't know I just carried over the idea of getters
-    #   and setters from java
-    #-remove uneccessary variables if applicable
-    #-smoother graphics, sometimes the computer paddle stutters
-    #easter eggs/cosmetics if I have time
-
 pg.init()
 
 # screen dimension constants
@@ -37,7 +22,7 @@ BLUE = ((13, 42, 186))
 INIT_SPEED = 4
 
 screen = pg.display.set_mode((WIDTH, HEIGHT))
-pg.display.set_caption("pong")
+pg.display.set_caption("Pong")
 
 FPS = 60
 clock = pg.time.Clock()
@@ -92,17 +77,18 @@ class paddle:
         y = self.y_pos + 55 #vertical center of paddle
         y_mod = 0
 
-        #move up
+        #move down
         if (y < target_y):
             y_mod = 1
 
         #if the ball is close enough to the center of the paddle, don't move
         #helps prevent excessive stuttering
-        #to be updated later to move exact distance to match ball    
+        #to be updated later to move exact distance to match ball 
+        #or to have more complex ai   
         elif(y <= target_y + 10 and y >= target_y - 10): 
             y_mod = 0
     
-        #move down
+        #move up
         else: 
             y_mod = -1
 
@@ -175,8 +161,17 @@ class ball:
     
     def bounce(self):
         self.x_speed = -self.x_speed
+        
+        #randomize bouncing within 20%,
+        #otherwise it's very predictable
+        #not how it works in actual physics but
+        #actual physics is a little complicated
+        #for a simple pong game
+        if (self.x_speed > 0):
+            self.x_speed = random.uniform(self.x_speed*0.80, self.x_speed*1.20)
+        else:
+            self.x_speed = random.uniform(self.x_speed*1.20, self.x_speed*0.80)
 
-    
     def reset(self):
         self.x_pos = WIDTH/2 - self.size
         self.y_pos = HEIGHT/2 - self.size
@@ -208,10 +203,9 @@ class ball:
         #work like i want
         x_dir = random.randint(1, 2)
         if (x_dir == 2):
-            x_dir == -1
+            x_dir = -1
 
         self.x_speed *= x_dir    
-        
     
         if (self.x_speed == 0 or self.x_speed == self.speed_base or self.x_speed == -self.speed_base): #can't be a right triangle if one of the sides l = 0 or l = hypotenuse
             self.reset()
@@ -223,7 +217,7 @@ class ball:
         #value will only ever be positive
         y_dir = random.randint(1, 2)
         if (y_dir == 2):
-            y_dir == -1
+            y_dir = -1
 
         self.y_speed *= y_dir
 
