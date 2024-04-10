@@ -3,39 +3,69 @@ import sys
 from game import Game
 from colors import Colors
 
-#initialize pygame
+# Initialize pygame
 pygame.init()
 
-#font for game text
+# Font for game text
 title_font = pygame.font.Font(None, 40)
 score_surface = title_font.render("Score", True, Colors.white)
 next_surface = title_font.render("Next", True, Colors.white)
 game_over_surface = title_font.render("GAME OVER", True, Colors.white)
 play_again_surface = title_font.render("Play again? (Y/N)", True, Colors.white)
+difficulty_surface = title_font.render("Difficulty: 1-Easy, 2-Med, 3-Hard", True, Colors.white)
 
-#rectangles for position, backgrounf, piece, and play again
+# Rectangles for position, background, piece, and play again
 score_rect = pygame.Rect(320, 55, 170, 60)
 next_rect = pygame.Rect(320, 215, 170, 180)
 play_again_rect = pygame.Rect(150, 300, 200, 60)  # Adjust as necessary
 
-#main game window
+# Main game window
 screen = pygame.display.set_mode((500, 620))
 pygame.display.set_caption("Tetris")
 
-#controlling frame rate
+# Controlling frame rate
 clock = pygame.time.Clock()
 
-#intialize game
+# Difficulty Selection
+screen.fill(Colors.dark_green)
+screen.blit(difficulty_surface, (25, 290))
+pygame.display.update()
+
+difficulty_speeds = {'Easy': 500, 'Medium': 300, 'Hard': 100}
+difficulty = 'Medium'  # Default difficulty
+
+# Menu loop for difficulty selection
+selecting_difficulty = True
+while selecting_difficulty:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                difficulty = 'Easy'
+                selecting_difficulty = False
+            elif event.key == pygame.K_2:
+                difficulty = 'Medium'
+                selecting_difficulty = False
+            elif event.key == pygame.K_3:
+                difficulty = 'Hard'
+                selecting_difficulty = False
+
+# Set the drop speed based on selected difficulty
+drop_speed = difficulty_speeds[difficulty]
+
+# Initialize game
 game = Game()
 
-#event for game updates
+# Event for game updates, adjusted for difficulty
 GAME_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(GAME_UPDATE, 200)
+pygame.time.set_timer(GAME_UPDATE, drop_speed)
 
-#check to see if game is over to ask to play again
+# Check to see if game is over to ask to play again
 asking_play_again = False
 
-#main game loop
+# Main game loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -43,11 +73,12 @@ while True:
             sys.exit()
         if event.type == pygame.KEYDOWN:
             if asking_play_again:
-                #play again response
+                # Play again response
                 if event.key == pygame.K_y:
                     game.reset()
                     game.game_over = False
                     asking_play_again = False
+                    pygame.time.set_timer(GAME_UPDATE, drop_speed)  # Reset timer for difficulty
                 elif event.key == pygame.K_n:
                     pygame.quit()
                     sys.exit()
@@ -57,22 +88,23 @@ while True:
                 asking_play_again = True  # Start asking to play again
                 continue
 
-                #control movement and action if game is playing
-            if event.key == pygame.K_LEFT and not game.game_over:
-                game.move_left()
-            if event.key == pygame.K_RIGHT and not game.game_over:
-                game.move_right()
-            if event.key == pygame.K_DOWN and not game.game_over:
-                game.move_down()
-                game.update_score(0, 1)
-            if event.key == pygame.K_UP and not game.game_over:
-                game.rotate()
+            # Control movement and action if game is playing
+            if not game.game_over:
+                if event.key == pygame.K_LEFT:
+                    game.move_left()
+                if event.key == pygame.K_RIGHT:
+                    game.move_right()
+                if event.key == pygame.K_DOWN:
+                    game.move_down()
+                    game.update_score(0, 1)
+                if event.key == pygame.K_UP:
+                    game.rotate()
 
-        #auto move piece down
+        # Auto move piece down
         if event.type == GAME_UPDATE and not game.game_over:
             game.move_down()
 
-    #redraw screen
+    # Redraw screen
     score_value_surface = title_font.render(str(game.score), True, Colors.white)
 
     screen.fill(Colors.dark_green)
@@ -84,15 +116,16 @@ while True:
     pygame.draw.rect(screen, Colors.dark_grey, next_rect, 0, 10)
 
     if game.game_over:
-        #game over screen and prompt
+        # Game over screen and prompt
         screen.blit(game_over_surface, (150, 250, 200, 50))  # Adjust position as needed
         screen.blit(play_again_surface, play_again_rect)
     else:
-        #if game isnt over draw current state
+        # If game isn't over draw current state
         game.draw(screen)
 
-    #update display and control frame rate
+    # Update display and control frame rate
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(100)
+
 
 
