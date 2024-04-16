@@ -2,7 +2,7 @@ import pygame as pg
 import random
 import math
 
-#State of project 4/2:
+#State of project 4/16:
     #functional pong game
     #score tracked in game
     #random ball "throw" direction to start
@@ -17,9 +17,17 @@ CENTER_X, CENTER_Y = (WIDTH / 2), (HEIGHT / 2)
 WHITE = ((235, 235, 235))
 RED = ((186, 13, 13))
 BLUE = ((13, 42, 186))
+GREEN = ((23, 163, 60))
+YELLOW = ((235, 217, 82))
+PINK = ((227, 118, 180))
+ORANGE = ((219, 118, 29))
+PURPLE = ((172, 29, 219))
 
 #other constants
 INIT_SPEED = 4
+PADDLE_HEIGHT = 110
+PADDLE_WIDTH = 20
+HALF_PADDLE_HEIGHT = PADDLE_HEIGHT/ 2
 
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Pong")
@@ -48,7 +56,7 @@ attributes of paddle:
 
 
 class paddle:
-    def __init__(self, x_pos, y_pos, color=WHITE, speed=12, height=110, width=20, is_player=False):
+    def __init__(self, x_pos, y_pos, color=WHITE, speed=12, height=PADDLE_HEIGHT, width=PADDLE_WIDTH, is_player=False):
         self.color = color
         self.x_pos = x_pos
         self.y_pos = y_pos
@@ -74,19 +82,20 @@ class paddle:
         return self.rect_draw
 
     def move_toward(self, target_y):
-        y = self.y_pos + 55 #vertical center of paddle
+        y = self.y_pos + HALF_PADDLE_HEIGHT #vertical center of paddle
         y_mod = 0
 
         #move down
         if (y < target_y):
             y_mod = 1
 
-        #if the ball is close enough to the center of the paddle, don't move
-        #helps prevent excessive stuttering
-        #to be updated later to move exact distance to match ball 
-        #or to have more complex ai   
+        #if ball is close to center of paddle, try to move less
+        #than speed so it doesn't overshoot
         elif(y <= target_y + 10 and y >= target_y - 10): 
-            y_mod = 0
+            if (y == target_y):
+                y_mod = 0
+            else:
+                y_mod = (target_y - y)/self.speed
     
         #move up
         else: 
@@ -99,7 +108,6 @@ class paddle:
         self.rect_draw = pg.draw.rect(screen, self.color, self.rect)
 
     def update(self, y_mod):
-
         self.y_pos += self.speed*y_mod
             
         # prevent from leaving bounds
@@ -111,12 +119,9 @@ class paddle:
         # update self rectangle
         self.rect = (self.x_pos, self.y_pos, self.width, self.height)
 
-    def __str__(self):
-        # mostly for debugging, candidate for later deletion
-        return ("paddle " + str(self.x_pos) + ", " + str(self.y_pos))
 
-player_paddle = paddle(0, CENTER_Y - 55, speed = 10, is_player=True)
-computer_paddle = paddle(WIDTH - 20, CENTER_Y - 55)
+player_paddle = paddle(0, CENTER_Y - HALF_PADDLE_HEIGHT, speed = 10, is_player=True)
+computer_paddle = paddle(WIDTH - 20, CENTER_Y - HALF_PADDLE_HEIGHT)
 
 """
 Attributes of ball:
@@ -149,15 +154,12 @@ class ball:
         return self.rect_draw
     
     def inc_speed(self):
-        #print("incspeed: " + str(self.speed_base) + "    x: " + str(self.x_speed) + "    y: " + str(self.y_speed))
         cos_ratio = self.speed_base / self.x_speed
         sin_ratio = self.speed_base / self.y_speed
 
         self.speed_base += 1
         self.x_speed = self.speed_base / cos_ratio
         self.y_speed = self.speed_base / sin_ratio
-
-        #print("postspeed: " + str(self.speed_base) + "    x: " + str(self.x_speed) + "    y: " + str(self.y_speed))
     
     def bounce(self):
         self.x_speed = -self.x_speed
