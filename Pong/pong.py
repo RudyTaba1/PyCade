@@ -6,6 +6,7 @@ import math
     #functional pong game
     #score tracked in game
     #random ball "throw" direction to start
+    #disco on C
 
 pg.init()
 
@@ -17,11 +18,6 @@ CENTER_X, CENTER_Y = (WIDTH / 2), (HEIGHT / 2)
 WHITE = ((235, 235, 235))
 RED = ((186, 13, 13))
 BLUE = ((13, 42, 186))
-GREEN = ((23, 163, 60))
-YELLOW = ((235, 217, 82))
-PINK = ((227, 118, 180))
-ORANGE = ((219, 118, 29))
-PURPLE = ((172, 29, 219))
 
 #other constants
 INIT_SPEED = 4
