@@ -1,23 +1,41 @@
-#necessary packages
-import HangMan as hm
-import Tetris as tet
-import Pong as p
+# Necessary packages
+
 import tkinter as tk
-import system as os
+import os
 
-def logoScreen:
-    #It'll be an arcaddee like screen to start
-    #Getting Hangman to work since it is a cli tool
+class Menu:
+    def __init__(self, master):
+        self.master = master
+        master.title("Game Menu")
 
-def tetButton:
-    # button for tetris
+        self.label = tk.Label(master, text="Choose a game to play")
+        self.label.pack()
 
-def pButton:
-    # button for pong
+        self.tetris_button = tk.Button(master, text="Tetris", command=self.tetButton)
+        self.tetris_button.pack()
 
-def hmButton:
-    #button for hangman
-    #it will pull up a cli and run "python3 hangman.py"
-    #then play hangman
+        self.pong_button = tk.Button(master, text="Pong", command=self.pButton)
+        self.pong_button.pack()
 
-def easterEgg:
+        self.hangman_button = tk.Button(master, text="Hangman", command=self.hmButton)
+        self.hangman_button.pack()
+
+    def tetButton(self):
+        # Button for tetris
+        # It will pull up a CLI and run "python3 tetris.py"
+        # Then play tetris
+        os.system("python3 tetris.py")
+        print("Tetris")
+
+    def pButton(self):
+        # Button for pong
+        pass
+
+    def hmButton(self):
+        # Button for hangman
+        # It will pull up a CLI and run "python3 hangman.py"
+        # Then play hangman
+        os.system("python3 hangman.py")
+
+    def easterEgg(self):
+        pass
