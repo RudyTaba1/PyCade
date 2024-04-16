@@ -28,6 +28,7 @@ INIT_SPEED = 4
 PADDLE_HEIGHT = 110
 PADDLE_WIDTH = 20
 HALF_PADDLE_HEIGHT = PADDLE_HEIGHT/ 2
+DISCO_TICK = 20 #every ___ frames, color changes while disco
 
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Pong")
@@ -138,6 +139,7 @@ class ball:
         self.x_pos = x
         self.y_pos = y
         self.color = c
+        self.disco = False
 
         #allow for change of direction
         self.x_speed = 1
@@ -253,6 +255,22 @@ class ball:
 
         self.rect = pg.Rect(self.x_pos, self.y_pos, self.size, self.size)
 
+    def get_disco(self):
+        return self.disco
+
+    def toggle_disco(self):
+            self.disco = not self.disco
+            if(not self.disco):
+                self.color = WHITE
+
+    def disco_time(self):
+        new_red = random.randint(0, 255)
+        new_blue = random.randint(0, 255)
+        new_green = random.randint(0, 255)
+
+        self.color = ((new_red, new_blue, new_green))
+
+
 game_ball = ball(20, CENTER_X - 20, CENTER_Y - 20)
 
 def display_score(p_score, c_score):
@@ -275,6 +293,7 @@ def game_loop():
     game_ball.display()         
     pg.display.update()
     pg.time.wait(300)
+    disco_count = 0
 
     while(running):
         screen.fill((0, 0, 0))
@@ -285,12 +304,27 @@ def game_loop():
                 running = False
 
         y_mod = 0
+
+        #handle disco color change
+        if (game_ball.get_disco()):
+            if (disco_count == DISCO_TICK):
+                game_ball.disco_time()
+                disco_count = 0
+            else:
+                disco_count += 1
+
+        
         #handle keypress
         keys = pg.key.get_pressed()
         if keys[pg.K_UP] or keys[pg.K_w]:
             y_mod = -1
         elif keys[pg.K_DOWN] or keys[pg.K_s]:
             y_mod = 1
+
+        if event.type == pg.KEYUP:
+            if event.key == pg.K_c:
+                disco_count = DISCO_TICK / 2
+                game_ball.toggle_disco()
 
         #computer paddle follows ball
         computer_paddle.move_toward(game_ball.get_y() + 10)
@@ -304,7 +338,8 @@ def game_loop():
             game_ball.inc_speed()
             game_ball.bounce()
 
-        #update graphics 
+        #update graphics
+
         player_paddle.update(y_mod)
         game_ball.update()
         display_score(player_score, computer_score)
