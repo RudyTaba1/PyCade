@@ -1,41 +1,37 @@
 # Necessary packages
-
-import tkinter as tk
 import os
+from tkinter import *
+import subprocess
+import sys
 
-class Menu:
-    def __init__(self, master):
-        self.master = master
-        master.title("Game Menu")
+root = Tk()
+root.title("Pycade")
 
-        self.label = tk.Label(master, text="Choose a game to play")
-        self.label.pack()
 
-        self.tetris_button = tk.Button(master, text="Tetris", command=self.tetButton)
-        self.tetris_button.pack()
 
-        self.pong_button = tk.Button(master, text="Pong", command=self.pButton)
-        self.pong_button.pack()
+def pButton():
+    try:
+        subprocess.Popen(["python3", "Pong/pong.py"])
+        sys.exit()
+    except Exception as e:
+        print("Error:", e)
+   
+def hmButton():
+    os.system("python3 HangMan/Hangman.py")
+    sys.exit() 
+    
+def Tbutton():
+    os.system("python3 Tetris/tetris.py")
+    sys.exit()
+    
+    
+pgButton = Button(root, text="Pong", command=pButton)
+pgButton.pack()
 
-        self.hangman_button = tk.Button(master, text="Hangman", command=self.hmButton)
-        self.hangman_button.pack()
+hangButton = Button(root, text="Hangman", command=hmButton)
+hangButton.pack()
 
-    def tetButton(self):
-        # Button for tetris
-        # It will pull up a CLI and run "python3 tetris.py"
-        # Then play tetris
-        os.system("python3 tetris.py")
-        print("Tetris")
+tetButton = Button(root, text="Tetris", command=Tbutton)
+tetButton.pack()
 
-    def pButton(self):
-        # Button for pong
-        pass
-
-    def hmButton(self):
-        # Button for hangman
-        # It will pull up a CLI and run "python3 hangman.py"
-        # Then play hangman
-        os.system("python3 hangman.py")
-
-    def easterEgg(self):
-        pass
+root.mainloop()

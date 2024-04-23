@@ -2,6 +2,7 @@ import pygame
 import sys
 from game import Game
 from colors import Colors
+import subprocess
 
 def select_difficulty(screen, title_font):
     difficulty_surface = title_font.render("Difficulty: 1-Easy, 2-Med, 3-Hard", True, Colors.white)
@@ -58,6 +59,7 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+           
 
         if event.type == pygame.KEYDOWN:
             if game.game_over:
@@ -69,7 +71,9 @@ while True:
                     pygame.time.set_timer(GAME_UPDATE, drop_speed)
                 elif event.key == pygame.K_n:
                     pygame.quit()
+                    subprocess.Popen(["python3", "MenuIntegration/Gmenu.py"])
                     sys.exit()
+                    
                 continue
 
             # Control movement and action if game is playing
