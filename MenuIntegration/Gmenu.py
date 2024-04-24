@@ -37,12 +37,12 @@ Grid.columnconfigure(root, 0, weight=1)
 
 # Load and display image
 img = Image.open("MenuIntegration/arcade.gif")
-img = img.resize((400, 400), Image.ANTIALIAS)
+img = img.resize((400, 400))
 photo = ImageTk.PhotoImage(img)
 
 # Load and display the title image
 title_img = Image.open("MenuIntegration/arcade2.png")  
-title_img = title_img.resize((150, 100), Image.ANTIALIAS)
+title_img = title_img.resize((150, 100))
 title_photo = ImageTk.PhotoImage(title_img)
 
 title_label = Label(root, image=title_photo)
