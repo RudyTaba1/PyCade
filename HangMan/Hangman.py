@@ -68,6 +68,7 @@ def hangman_game(difficulty):
     else:
         print('YAY! You guessed the word', word, '!!')
 
+
 if __name__ == '__main__':
     difficulty = input("Choose difficulty (easy/medium/difficult): ").lower()
     hangman_game(difficulty)

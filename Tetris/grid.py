@@ -1,5 +1,5 @@
 import pygame
-from colors import Colors
+from blocks import Colors
 
 class Grid:
 	#constructor method for grid

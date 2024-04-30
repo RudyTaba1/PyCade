@@ -1,7 +1,7 @@
 import pygame
 import sys
 from game import Game
-from colors import Colors
+from blocks import Colors
 import subprocess
 
 def select_difficulty(screen, title_font):
@@ -51,15 +51,46 @@ pygame.time.set_timer(GAME_UPDATE, drop_speed)
 # Game loop variables
 score_rect = pygame.Rect(320, 55, 170, 60)
 next_rect = pygame.Rect(320, 215, 170, 180)
-play_again_rect = pygame.Rect(150, 300, 200, 60)  # Position for play again message
+play_again_rect = pygame.Rect(150, 300, 200, 60)# Position for play again message
 
+
+BASE_SPEED = 500  # milliseconds between moves at the start
+SCORE_INCREASE_THRESHOLD = 300
+
+# Initialize Pygame and other game components
+pygame.init()
+window = pygame.display.set_mode((800, 600))
+clock = pygame.time.Clock()
+
+# Speed and scoring
+current_drop_speed = BASE_SPEED
+last_speed_adjust_score = 0
+
+# Game variables
+score = 0
+game_over = False
+def adjust_speed(base_speed, score):
+    speed_increase = score // 300  # Calculate how many times the speed should have increased
+    new_speed = max(base_speed - speed_increase * 50, 50)  # Decrease interval by 50ms per increment, not less than 50ms
+    return new_speed
+
+current_drop_speed = drop_speed  # Set initial drop speed based on selected difficulty
+
+last_speed_adjust_score = 0
+
+if score // SCORE_INCREASE_THRESHOLD > last_speed_adjust_score // SCORE_INCREASE_THRESHOLD:
+    last_speed_adjust_score = score
+    current_drop_speed = adjust_speed(BASE_SPEED, score)
+    print(f"Score: {score}, New Speed: {current_drop_speed}")  # Debugging output
+    pygame.time.set_timer(pygame.USEREVENT+1, current_drop_speed)
 # Main game loop
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-           
+
 
         if event.type == pygame.KEYDOWN:
             if game.game_over:
@@ -73,7 +104,7 @@ while True:
                     pygame.quit()
                     subprocess.Popen(["python3", "MenuIntegration/Gmenu.py"])
                     sys.exit()
-                    
+
                 continue
 
             # Control movement and action if game is playing
@@ -90,7 +121,12 @@ while True:
         # Auto move piece down
         if event.type == GAME_UPDATE and not game.game_over:
             game.move_down()
-            game.update_score(0, 1)  # Update the score by moving down
+            game.update_score(0, 1)# Update the score by moving down
+
+        if game.score // 300 > last_speed_adjust_score // 300:
+            last_speed_adjust_score = game.score
+            current_drop_speed = adjust_speed(drop_speed, game.score)
+            pygame.time.set_timer(GAME_UPDATE, current_drop_speed)
 
     # Redraw game state
     screen.fill(Colors.dark_green)
